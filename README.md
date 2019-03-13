@@ -78,13 +78,13 @@ And modify the `index.html` to include the css files and the js file in the bott
 Let's create a header section with some title.
 
 ```html
-	<div id="app-todo">
-		<section class="todoapp">
-			<header class="header">
-				<h1>{{header}}</h1>
-			</header>
-		</section>
-	</div>
+<div id="app-todo">
+	<section class="todoapp">
+		<header class="header">
+			<h1>{{header}}</h1>
+		</header>
+	</section>
+</div>
 ```
 
 ```
@@ -101,10 +101,10 @@ var app = new Vue({
 For example, the created hook can be used to run code after an instance is created:
 
 ```javascript
-	created : function() {
-		// `this` points to the vm instance
-		console.log('The title: ' + this.header)
-	}
+created : function() {
+	// `this` points to the vm instance
+	console.log('The title: ' + this.header)
+}
 ```
 
 #### Interpolations
@@ -129,23 +129,21 @@ The property should be visible
 seen: true
 ```
 
-Bind for properties
-
-We can add a footer
+To see how the binding of properties works, let's add a footer with some links.
 
 ```html
-	<footer class="info">
-		<p>Double-click to edit a todo</p>
-		<p>Find code in <a v-bind:href="githubUrl">Github</a></p>
-		<p>Original project <a v-bind:href="mvcUrl">TodoMVC</a></p>
-	</footer>
+<footer class="info">
+	<p>Double-click to edit a todo</p>
+	<p>Find code in <a v-bind:href="githubUrl">Github</a></p>
+	<p>Original project <a v-bind:href="mvcUrl">TodoMVC</a></p>
+</footer>
 ```
 
 And the links in the js file.
 
 ```javascript
-	githubUrl: 'https://github.com',
-	mvcUrl: 'http://todomvc.com'
+githubUrl: 'https://github.com',
+mvcUrl: 'http://todomvc.com'
 ```
 
 ## Adding a form
@@ -167,12 +165,12 @@ newTodo: ''
 And we will define the function into `methods` property.
 
 ```javascript
-	methods: {
-		addTodo: function() {
-			console.log("Adding a Todo");
-			this.newTodo = '';
-		}
+methods: {
+	addTodo: function() {
+		console.log("Adding a Todo");
+		this.newTodo = '';
 	}
+}
 ```
 
 
