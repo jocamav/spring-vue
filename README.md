@@ -167,12 +167,52 @@ And we will define the function into `methods` property.
 ```javascript
 methods: {
 	addTodo: function() {
-		console.log("Adding a Todo");
+		console.log("Adding a Todo:" + this.newTodo);
 		this.newTodo = '';
 	}
 }
 ```
 
+## List rendering
+
+Add some mock data in JS,
+
+```javascript
+var MOCK_TODOS = [
+	{"id":1,"content":"Learn JavaScript","completed":false},
+	{"id":2,"content":"Learn Vue","completed":false},
+	{"id":3,"content":"Build something awesome","completed":false}
+]
+
+···
+
+data : {
+	···
+	todos: MOCK_TODOS
+}
+```
+
+And include the list in HTML.
+
+```
+<section class="main" v-show="todos.length">
+	<input id="toggle-all" class="toggle-all" type="checkbox">
+	<label for="toggle-all">Mark all as complete</label>
+	<ul class="todo-list">
+		<li class="todo" v-for="todo in todos" :key="todo.id" :class="{completed: todo.completed}">
+			<div class="view">
+				<input class="toggle" type="checkbox" v-model="todo.completed">
+				<label>{{todo.content}}</label>
+				<button class="destroy"></button>
+			</div>
+		</li>
+	</ul>
+</section>
+```
+
+>Generally speaking, v-if has higher toggle costs while v-show has higher initial render costs. So prefer v-show if you need to toggle something very often, and prefer v-if if the condition is unlikely to change at runtime
+
+`:class="{completed: todo.completed}"` add a class to the element if the condition is true.
 
 ## References
 You can find some extra documentation here:

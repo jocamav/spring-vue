@@ -14,6 +14,19 @@
 				<h1>{{header}}</h1>
 				<input class="new-todo" autofocus autocomplete="off" placeholder="What needs to be done?" v-model="newTodo" @keyup.enter="addTodo">
 			</header>
+			<section class="main" v-show="todos.length">
+				<input id="toggle-all" class="toggle-all" type="checkbox">
+				<label for="toggle-all">Mark all as complete</label>
+				<ul class="todo-list">
+					<li class="todo" v-for="todo in todos" :key="todo.id" :class="{completed: todo.completed}">
+						<div class="view">
+							<input class="toggle" type="checkbox" v-model="todo.completed">
+							<label>{{todo.content}}</label>
+							<button class="destroy"></button>
+						</div>
+					</li>
+				</ul>
+			</section>
 		</section>
 		
 		<footer class="info">
