@@ -11,6 +11,10 @@ Then, open in a browser:
 
 ## Starting
 
+You can start with the initial version of the project, checkout the initial tag.
+
+`git checkout initial`
+
 In index.html file you should find:
 
 ```html
