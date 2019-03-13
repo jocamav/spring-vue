@@ -194,7 +194,7 @@ data : {
 
 And include the list in HTML.
 
-```
+```html
 <section class="main" v-show="todos.length">
 	<input id="toggle-all" class="toggle-all" type="checkbox">
 	<label for="toggle-all">Mark all as complete</label>
