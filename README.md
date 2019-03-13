@@ -54,7 +54,7 @@ var app = new Vue({
 
 And modify the `index.html` to include the css files and the js file in the botton.
 
-```
+```html
 <html>
 	<head>
 		<meta charset="utf-8">
