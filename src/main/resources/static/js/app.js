@@ -1,8 +1,3 @@
-var MOCK_TODOS = [
-	{"id":1,"title":"Learn JavaScript","completed":false},
-	{"id":2,"title":"Learn Vue","completed":true},
-	{"id":3,"title":"Build something awesome","completed":false}
-];
 
 var filters = {
     all: function (todos) {
@@ -27,13 +22,19 @@ var app = new Vue({
 		githubUrl: 'https://github.com',
 		mvcUrl: 'http://todomvc.com',
 		newTodo: '',
-		todos: MOCK_TODOS,
+		todos: [],
         editedTodo: null,
         visibility: 'all'
 	},
-	created : function() {
-		// `this` points to the vm instance
-		console.log('The title: ' + this.header)
+    mounted : function() {
+        axios
+            .get('/api/todo/')
+            .then(function(response) {
+                this.todos = response.data;
+            })
+            .catch(function(error) {
+                console.log(error)
+            });
 	},
     computed: {
         filteredTodos: function () {

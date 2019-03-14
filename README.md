@@ -630,6 +630,11 @@ router.init();
 
 ```
 
+## Using axios to consume APIs
+
+Let's see how to use axios to consume a REST api.
+
+
 
 ## References
 You can find some extra documentation here:

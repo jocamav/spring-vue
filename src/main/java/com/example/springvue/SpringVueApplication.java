@@ -19,8 +19,11 @@ public class SpringVueApplication {
 		ConfigurableApplicationContext ctx = SpringApplication.run(SpringVueApplication.class, args);
 		TodoRepository todoRepository = ctx.getBean(TodoRepository.class);
 		todoRepository.save(new Todo("Learn JavaScript"));
-		todoRepository.save(new Todo("Learn Vue"));
+		Todo todo1 = new Todo("Learn Vue");
+		todo1.setCompleted(true);
+		todoRepository.save(todo1);
 		todoRepository.save(new Todo("Build something awesome"));
+		todoRepository.save(new Todo("Include in Hybris"));
 
 		// fetch all customers
 		log.info("Todo test data created:");
