@@ -86,6 +86,9 @@ var app = new Vue({
         cancelEdit: function (todo) {
             this.editedTodo = null;
             todo.title = this.beforeEditCache;
+        },
+        removeCompleted: function () {
+            this.todos = filters.active(this.todos);
         }
 	},
     directives: {

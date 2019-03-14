@@ -424,6 +424,213 @@ Pay attention to:
 * Also, we are linking some events to the function doneEdit(todo)
 * Link the cancel function to the Esc key
 
+### Remove completed
+
+To finish, let's include a function to remove all the completed todos.
+
+```javascript
+removeCompleted: function () {
+    this.todos = filters.active(this.todos);
+}
+```
+
+And include the button as last element of the footer.
+
+```html
+<button class="clear-completed" @click="removeCompleted" v-show="todos.length > remaining">
+    Clear completed
+</button>
+```
+
+### Summary
+
+The `index.html` should looks like:
+
+```html
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Vue.js - TodoMVC - Spring Boot</title>
+		<link rel="stylesheet" href="css/base.css">
+		<link rel="stylesheet" href="css/index.css">
+		<style> [v-cloak] { display: none; } </style>
+	</head>
+</html>
+
+<body>
+	<div id="app-todo">
+		<section class="todoapp" v-cloak>
+			<header class="header">
+				<h1>{{header}}</h1>
+				<input class="new-todo" autofocus autocomplete="off" placeholder="What needs to be completed?" v-model="newTodo" @keyup.enter="addTodo">
+			</header>
+			<section class="main" v-show="todos.length">
+				<input id="toggle-all" class="toggle-all" type="checkbox" v-model="allDone">
+				<label for="toggle-all" >Mark all as complete</label>
+				<ul class="todo-list">
+					<li class="todo" v-for="todo in filteredTodos" :key="todo.id" :class="{completed: todo.completed, editing: todo == editedTodo}">
+						<div class="view">
+							<input class="toggle" type="checkbox" v-model="todo.completed">
+							<label @dblclick="editTodo(todo)">{{todo.title}}</label>
+							<button class="destroy" @click="removeTodo(todo)"></button>
+						</div>
+						<input class="edit" type="text" v-model="todo.title" v-todo-focus="todo == editedTodo" @blur="doneEdit(todo)" @keyup.enter="doneEdit(todo)" @keyup.esc="cancelEdit(todo)">
+					</li>
+				</ul>
+			</section>
+			<footer class="footer" v-show="todos.length">
+				<span class="todo-count">
+					<strong v-text="remaining"></strong> {{pluralize('item', remaining)}} left
+				</span>
+				<ul class="filters">
+					<li><a href="#/all" :class="{selected: visibility == 'all'}">All</a></li>
+					<li><a href="#/active" :class="{selected: visibility == 'active'}">Active</a></li>
+					<li><a href="#/completed" :class="{selected: visibility == 'completed'}">Completed</a></li>
+				</ul>
+				<button class="clear-completed" @click="removeCompleted" v-show="todos.length > remaining">
+					Clear completed
+				</button>
+			</footer>
+		</section>
+		
+		<footer class="info">
+			<p>Double-click to edit a todo</p>
+			<p>Find code in <a v-bind:href="githubUrl">Github</a></p>
+			<p>Original project <a v-bind:href="mvcUrl">TodoMVC</a></p>
+		</footer>
+	</div>
+	<script src="https://rawgit.com/flatiron/director/master/build/director.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src="js/app.js"></script>
+</body>
+```
+
+And the `app.js` file:
+
+```javascript
+var MOCK_TODOS = [
+	{"id":1,"title":"Learn JavaScript","completed":false},
+	{"id":2,"title":"Learn Vue","completed":true},
+	{"id":3,"title":"Build something awesome","completed":false}
+];
+
+var filters = {
+    all: function (todos) {
+        return todos;
+    },
+    active: function (todos) {
+        return todos.filter(function (todo) {
+            return !todo.completed;
+        });
+    },
+    completed: function (todos) {
+        return todos.filter(function (todo) {
+            return todo.completed;
+        });
+    }
+};
+
+var app = new Vue({
+	el : '#app-todo',
+	data : {
+		header : 'todo',
+		githubUrl: 'https://github.com',
+		mvcUrl: 'http://todomvc.com',
+		newTodo: '',
+		todos: MOCK_TODOS,
+        editedTodo: null,
+        visibility: 'all'
+	},
+	created : function() {
+		// `this` points to the vm instance
+		console.log('The title: ' + this.header)
+	},
+    computed: {
+        filteredTodos: function () {
+            return filters[this.visibility](this.todos);
+        },
+        remaining: function () {
+            return filters.active(this.todos).length;
+        },
+        allDone: {
+            get: function () {
+                return this.remaining === 0;
+            },
+            set: function (value) {
+                this.todos.forEach(function (todo) {
+                    todo.completed = value;
+                });
+            }
+        }
+    },
+	methods: {
+        pluralize: function (word, count) {
+            return word + (count === 1 ? '' : 's');
+        },
+		addTodo: function() {
+            var value = this.newTodo && this.newTodo.trim();
+            if (!value) {
+                return;
+            }
+            this.todos.push({ id: this.todos.length + 1, title: value, completed: false });
+            this.newTodo = '';
+		},
+        removeTodo: function (todo) {
+            var index = this.todos.indexOf(todo);
+            this.todos.splice(index, 1);
+        },
+        editTodo: function (todo) {
+            this.beforeEditCache = todo.title;
+            this.editedTodo = todo;
+        },
+        doneEdit: function (todo) {
+            if (!this.editedTodo) {
+                return;
+            }
+            this.editedTodo = null;
+            todo.title = todo.title.trim();
+            if (!todo.title) {
+                this.removeTodo(todo);
+            }
+        },
+        cancelEdit: function (todo) {
+            this.editedTodo = null;
+            todo.title = this.beforeEditCache;
+        },
+        removeCompleted: function () {
+            this.todos = filters.active(this.todos);
+        }
+	},
+    directives: {
+        'todo-focus': function (el, binding) {
+            if (binding.value) {
+                el.focus();
+            }
+        }
+    }
+});
+
+
+var router = new Router();
+
+['all', 'active', 'completed'].forEach(function (visibility) {
+	router.on(visibility, function () {
+		app.visibility = visibility;
+	});
+});
+
+router.configure({
+	notfound: function () {
+		window.location.hash = '';
+		app.visibility = 'all';
+	}
+});
+
+router.init();
+
+```
+
+
 ## References
 You can find some extra documentation here:
 
