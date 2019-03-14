@@ -358,6 +358,72 @@ router.init();
 
 > For this example we are using a 3rd-Party Router (Director). For most Single Page Applications, it’s recommended to use the officially-supported vue-router library. 
 
+### Creating directives
+
+First, we are going to add some new methods to edit a todo and also a new property ``editedTodo`:
+
+```javascript
+data : {
+    ···
+    editedTodo: null
+    ···
+},
+	···
+methods: {
+    ····
+    editTodo: function (todo) {
+        this.beforeEditCache = todo.title;
+        this.editedTodo = todo;
+    },
+    doneEdit: function (todo) {
+        if (!this.editedTodo) {
+            return;
+        }
+        this.editedTodo = null;
+        todo.title = todo.title.trim();
+        if (!todo.title) {
+            this.removeTodo(todo);
+        }
+    },
+    cancelEdit: function (todo) {
+        this.editedTodo = null;
+        todo.title = this.beforeEditCache;
+    }
+}
+
+```
+
+Now, we are going to create a new custom directive `todo-focus`.
+
+```javascript
+directives: {
+    'todo-focus': function (el, binding) {
+        if (binding.value) {
+            el.focus();
+        }
+    }
+}
+```
+
+No we need to change the `li` component to include a class `editing` if a todo is being edited.
+
+```html
+:class="{completed: todo.completed, editing: todo == editedTodo}"
+```
+
+Also, we add to the label a new event when is double click to edit the todo `<label @dblclick="editTodo(todo)">`.
+
+And finally, to include a new input:
+
+```html
+<input class="edit" type="text" v-model="todo.title" v-todo-focus="todo == editedTodo" @blur="doneEdit(todo)" @keyup.enter="doneEdit(todo)" @keyup.esc="cancelEdit(todo)">
+```
+
+Pay attention to:
+* We are using the new directive v-todo-focus
+* Also, we are linking some events to the function doneEdit(todo)
+* Link the cancel function to the Esc key
+
 ## References
 You can find some extra documentation here:
 

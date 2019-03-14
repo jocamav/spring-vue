@@ -28,6 +28,7 @@ var app = new Vue({
 		mvcUrl: 'http://todomvc.com',
 		newTodo: '',
 		todos: MOCK_TODOS,
+        editedTodo: null,
         visibility: 'all'
 	},
 	created : function() {
@@ -67,8 +68,33 @@ var app = new Vue({
         removeTodo: function (todo) {
             var index = this.todos.indexOf(todo);
             this.todos.splice(index, 1);
+        },
+        editTodo: function (todo) {
+            this.beforeEditCache = todo.title;
+            this.editedTodo = todo;
+        },
+        doneEdit: function (todo) {
+            if (!this.editedTodo) {
+                return;
+            }
+            this.editedTodo = null;
+            todo.title = todo.title.trim();
+            if (!todo.title) {
+                this.removeTodo(todo);
+            }
+        },
+        cancelEdit: function (todo) {
+            this.editedTodo = null;
+            todo.title = this.beforeEditCache;
         }
-	}
+	},
+    directives: {
+        'todo-focus': function (el, binding) {
+            if (binding.value) {
+                el.focus();
+            }
+        }
+    }
 });
 
 
