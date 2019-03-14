@@ -15,6 +15,13 @@ public class TodoDTO {
         this.title = title;
         this.completed = false;
     }
+    
+
+    public TodoDTO(long id, String title, boolean completed) {
+        this.id = id;
+        this.title = title;
+        this.completed = completed;
+    }
 
     public long getId() {
         return id;
