@@ -731,11 +731,27 @@ todoToggle: function (todo) {
 
 And link the change event to the checkbox of each todo.
 
-```
+```javascript
 <input class="toggle" type="checkbox" v-model="todo.completed" @change="todoToggle(todo)">
 ```
 
-TODO: Toggle all and delete completed is not working because it's not implemented in the server yet.
+For delete completed todos:
+
+```javascript
+removeCompleted: function () {
+	axios.post(API_TODO_URL+'deletecompleted')
+    .then(response => {
+        this.todos = filters.active(this.todos);
+    })
+    .catch(error => {
+    	console.log(error);
+    });
+}
+```
+
+TODO: Toggle all is not working because it's not implemented in the server yet.
+
+
 
 Now we can test everything together.
 
