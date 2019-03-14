@@ -27,13 +27,17 @@ var app = new Vue({
 		githubUrl: 'https://github.com',
 		mvcUrl: 'http://todomvc.com',
 		newTodo: '',
-		todos: MOCK_TODOS
+		todos: MOCK_TODOS,
+        visibility: 'all'
 	},
 	created : function() {
 		// `this` points to the vm instance
 		console.log('The title: ' + this.header)
 	},
     computed: {
+        filteredTodos: function () {
+            return filters[this.visibility](this.todos);
+        },
         remaining: function () {
             return filters.active(this.todos).length;
         },
@@ -65,4 +69,23 @@ var app = new Vue({
             this.todos.splice(index, 1);
         }
 	}
-})
+});
+
+
+var router = new Router();
+
+['all', 'active', 'completed'].forEach(function (visibility) {
+	router.on(visibility, function () {
+		app.visibility = visibility;
+	});
+});
+
+router.configure({
+	notfound: function () {
+		window.location.hash = '';
+		app.visibility = 'all';
+	}
+});
+
+router.init();
+

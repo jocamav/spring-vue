@@ -295,7 +295,68 @@ Now, we are going to add a footer below the list of todos with the remaining pen
 </footer>
 ```
 
+### Routing
 
+To use the Routing module, we need to include a new dependency in the HTML.
+
+```html
+	<script src="https://rawgit.com/flatiron/director/master/build/director.min.js"></script>
+```
+
+Then, we need a new computed property to show the filtered todos. And also a new property 
+
+```javascript
+computed: {
+    
+    ···
+    
+    filteredTodos: function () {
+        return filters[this.visibility](this.todos);
+    }
+    
+    ···
+    
+}
+```
+
+Like we are going to use different list of todos, we need to change the html from `v-for="todo in todos"` to `v-for="todo in filteredTodos"` to use the new computed property.
+
+In the footer section, we are going to add the links to:
+* All todos
+* Active todos
+* Complete todos
+
+```html
+<ul class="filters">
+    <li><a href="#/all" :class="{selected: visibility == 'all'}">All</a></li>
+    <li><a href="#/active" :class="{selected: visibility == 'active'}">Active</a></li>
+    <li><a href="#/completed" :class="{selected: visibility == 'completed'}">Completed</a></li>
+</ul>
+
+```
+
+Finally, we are going to add the Router configuration.
+
+```javascript
+var router = new Router();
+
+['all', 'active', 'completed'].forEach(function (visibility) {
+	router.on(visibility, function () {
+		app.visibility = visibility;
+	});
+});
+
+router.configure({
+	notfound: function () {
+		window.location.hash = '';
+		app.visibility = 'all';
+	}
+});
+
+router.init();
+```
+
+> For this example we are using a 3rd-Party Router (Director). For most Single Page Applications, it’s recommended to use the officially-supported vue-router library. 
 
 ## References
 You can find some extra documentation here:
