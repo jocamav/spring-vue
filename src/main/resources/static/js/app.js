@@ -1,3 +1,4 @@
+var API_TODO_URL = '/api/todo/';
 
 var filters = {
     all: function (todos) {
@@ -28,9 +29,9 @@ var app = new Vue({
 	},
     mounted : function() {
         axios
-            .get('/api/todo/')
-            .then(function(response) {
-                this.todos = response.data;
+            .get(API_TODO_URL)
+            .then(response => {
+            	this.todos = response.data;
             })
             .catch(function(error) {
                 console.log(error)
@@ -63,12 +64,26 @@ var app = new Vue({
             if (!value) {
                 return;
             }
-            this.todos.push({ id: this.todos.length + 1, title: value, completed: false });
-            this.newTodo = '';
+            axios.put(API_TODO_URL, {
+            	title: value
+            })
+            .then(response => {
+                this.todos.push(response.data);
+            })
+            .catch(error => {
+            	console.log(error);
+            })
+            .finally(() => (this.newTodo = ''));
 		},
         removeTodo: function (todo) {
-            var index = this.todos.indexOf(todo);
-            this.todos.splice(index, 1);
+            axios.delete(API_TODO_URL + todo.id)
+            .then(response => {
+                var index = this.todos.indexOf(todo);
+                this.todos.splice(index, 1);
+            })
+            .catch(error => {
+            	console.log(error);
+            })
         },
         editTodo: function (todo) {
             this.beforeEditCache = todo.title;
@@ -83,13 +98,37 @@ var app = new Vue({
             if (!todo.title) {
                 this.removeTodo(todo);
             }
+            else {
+	            axios.post(API_TODO_URL+todo.id, todo)
+	            .then(response => {
+	                todo = response.data
+	            })
+	            .catch(error => {
+	            	console.log(error);
+	            });
+            }
         },
         cancelEdit: function (todo) {
             this.editedTodo = null;
             todo.title = this.beforeEditCache;
         },
         removeCompleted: function () {
-            this.todos = filters.active(this.todos);
+        	axios.post(API_TODO_URL+'deletecompleted')
+            .then(response => {
+                this.todos = filters.active(this.todos);
+            })
+            .catch(error => {
+            	console.log(error);
+            });
+        },
+        todoToggle: function (todo) {
+        	axios.post(API_TODO_URL+todo.id, todo)
+            .then(response => {
+                todo = response.data
+            })
+            .catch(error => {
+            	console.log(error);
+            });
         }
 	},
     directives: {

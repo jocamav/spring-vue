@@ -2,6 +2,7 @@ package com.example.springvue.controller;
 
 import java.util.List;
 
+import org.hibernate.cfg.NotYetImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -55,6 +56,27 @@ public class TodoController {
         TodoDTO todoDTO = new TodoDTO();
         todoDTO.setId(id);
         return todoDTO;
+    }
+    
+    @PostMapping("/deletecompleted")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public String deleteCompleted(){
+        todoService.deleteCompleteTodos();
+        return "DELETED";
+    }
+    
+    @PostMapping("/allcompleted")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public String markAllAsCompleted(){
+        todoService.updateCompleteFlagForTodos(true);
+        return "OK";
+    }
+    
+    @PostMapping("/allnotcompleted")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public String markAllAsNotCompleted(){
+        todoService.updateCompleteFlagForTodos(false);
+        return "OK";
     }
 
     @ExceptionHandler(Exception.class)

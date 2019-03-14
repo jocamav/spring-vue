@@ -9,5 +9,7 @@ public interface TodoService {
     TodoDTO getTodo(Long id);
     TodoDTO saveTodo(TodoDTO todoDTO);
     TodoDTO updateTodo(TodoDTO todoDTO);
+    int updateCompleteFlagForTodos(boolean completed);
     void deleteTodo(Long id);
+    void deleteCompleteTodos();
 }

@@ -632,9 +632,118 @@ router.init();
 
 ## Using axios to consume APIs
 
-Let's see how to use axios to consume a REST api.
+Let's see how to use axios to consume a REST api. First, we'll change the `created` hook to use `mounted` hook. And with axis, we'll do a REST request.
 
+```javascript
+mounted : function() {
+	axios
+        .get('/api/todo/')
+        .then(response => {
+        	this.todos = response.data;
+        })
+        .catch(function(error) {
+            console.log(error)
+        });
+}
+```
 
+And also, we can delete all the references to the mock data and change it to an empty array.
+
+```javascript
+todos: [],
+```
+
+If we refresh the page, we'll get the list of todos from the Database via REST. Now, we need to change the other methods to consume the REST api.
+
+To add a new todo:
+
+```javascript
+addTodo: function() {
+    var value = this.newTodo && this.newTodo.trim();
+    if (!value) {
+        return;
+    }
+    axios.put(API_TODO_URL, {
+    	title: value
+    })
+    .then(response => {
+        this.todos.push(response.data);
+    })
+    .catch(error => {
+    	console.log(error);
+    })
+    .finally(() => (this.newTodo = ''));
+}
+```
+
+To delete a todo.
+
+```
+removeTodo: function (todo) {
+    axios.delete(API_TODO_URL + todo.id)
+    .then(response => {
+        var index = this.todos.indexOf(todo);
+        this.todos.splice(index, 1);
+    })
+    .catch(error => {
+    	console.log(error);
+    })
+}
+```
+
+To update a todo.
+
+```javascript
+doneEdit: function (todo) {
+    if (!this.editedTodo) {
+        return;
+    }
+    this.editedTodo = null;
+    todo.title = todo.title.trim();
+    if (!todo.title) {
+        this.removeTodo(todo);
+    }
+    else {
+        axios.post(API_TODO_URL+todo.id, todo)
+        .then(response => {
+            todo = response.data
+        })
+        .catch(error => {
+        	console.log(error);
+        });
+    }
+}
+```
+
+For toggle the completed flag, we need to create a new method.
+
+```javascript
+todoToggle: function (todo) {
+	axios.post(API_TODO_URL+todo.id, todo)
+    .then(response => {
+        todo = response.data
+    })
+    .catch(error => {
+    	console.log(error);
+    });
+}
+```
+
+And link the change event to the checkbox of each todo.
+
+```
+<input class="toggle" type="checkbox" v-model="todo.completed" @change="todoToggle(todo)">
+```
+
+TODO: Toggle all and delete completed is not working because it's not implemented in the server yet.
+
+Now we can test everything together.
+
+`mvn spring-boot:run`
+
+Then, open in a browser:
+
+`http://localhost:8080`
 
 ## References
 You can find some extra documentation here:
@@ -642,4 +751,6 @@ You can find some extra documentation here:
 * [Getting started with Vue.js](https://vuejs.org/v2/guide/)
 * [Building a RESTful Web Service](https://spring.io/guides/gs/rest-service/)
 * [Accessing Data with JPA](https://spring.io/guides/gs/accessing-data-jpa/)
+* [axios](https://github.com/axios/axios)
+
 
