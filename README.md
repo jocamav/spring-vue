@@ -68,6 +68,7 @@ And modify the `index.html` to include the css files and the js file in the bott
 	<div id="app-todo">{{ message }}</div>
 	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 	<script src="js/app.js"></script>
+	<style> [v-cloak] { display: none; } </style>
 </body>
 ```
 
@@ -79,7 +80,7 @@ Let's create a header section with some title.
 
 ```html
 <div id="app-todo">
-	<section class="todoapp">
+	<section class="todoapp" v-cloak>
 		<header class="header">
 			<h1>{{header}}</h1>
 		</header>
@@ -95,6 +96,8 @@ var app = new Vue({
 	}
 })
 ```
+
+> This directive will remain on the element until the associated Vue instance finishes compilation. Combined with CSS rules such as [v-cloak] { display: none }, this directive can be used to hide un-compiled mustache bindings until the Vue instance is ready.
 
 #### Instance Lifecycle Hooks
 
@@ -146,43 +149,30 @@ githubUrl: 'https://github.com',
 mvcUrl: 'http://todomvc.com'
 ```
 
-## Adding a form
+### Adding a form
 
 We can add an input under the header
 
 ```html
-<input class="new-todo" autofocus autocomplete="off" placeholder="What needs to be done?" v-model="newTodo" @keyup.enter="addTodo">
+<input class="new-todo" autofocus autocomplete="off" placeholder="What needs to be completed?" v-model="newTodo">
 ```
 
->@keyup is equivalent to v-on. It's known as a Shorthand.
-
-We need to link the model and the event to a property in Vue and a method.
+We need to link the model and the event to a property in Vue.
 
 ```javascript
 newTodo: ''
 ```
 
-And we will define the function into `methods` property.
-
-```javascript
-methods: {
-	addTodo: function() {
-		console.log("Adding a Todo:" + this.newTodo);
-		this.newTodo = '';
-	}
-}
-```
-
-## List rendering
+### List rendering
 
 Add some mock data in JS,
 
 ```javascript
 var MOCK_TODOS = [
-	{"id":1,"content":"Learn JavaScript","completed":false},
-	{"id":2,"content":"Learn Vue","completed":false},
-	{"id":3,"content":"Build something awesome","completed":false}
-]
+	{"id":1,"title":"Learn JavaScript","completed":false},
+	{"id":2,"title":"Learn Vue","completed":true},
+	{"id":3,"title":"Build something awesome","completed":false}
+];
 
 ···
 
@@ -202,7 +192,7 @@ And include the list in HTML.
 		<li class="todo" v-for="todo in todos" :key="todo.id" :class="{completed: todo.completed}">
 			<div class="view">
 				<input class="toggle" type="checkbox" v-model="todo.completed">
-				<label>{{todo.content}}</label>
+				<label>{{todo.title}}</label>
 				<button class="destroy"></button>
 			</div>
 		</li>
@@ -213,6 +203,99 @@ And include the list in HTML.
 >Generally speaking, v-if has higher toggle costs while v-show has higher initial render costs. So prefer v-show if you need to toggle something very often, and prefer v-if if the condition is unlikely to change at runtime
 
 `:class="{completed: todo.completed}"` add a class to the element if the condition is true.
+
+### Binding events
+
+Let's create the method to add a new event:
+
+Add `@keyup.enter="addTodo"` to the input field.
+
+
+And we will define the function `addTodo' into `methods` property.
+
+```javascript
+methods: {
+	addTodo: function() {
+        var value = this.newTodo && this.newTodo.trim();
+        if (!value) {
+            return;
+        }
+        this.todos.push({ id: this.todos.length + 1, title: value, completed: false });
+        this.newTodo = '';
+    }
+}
+```
+
+>@keyup is equivalent to v-on. It's known as a Shorthand.
+
+Now we can add the remove functionality. First we create the method in the JS file.
+
+```javascript
+removeTodo: function (todo) {
+    var index = this.todos.indexOf(todo);
+    this.todos.splice(index, 1);
+}
+```
+
+And now we add `@click="removeTodo(todo)` to the remove button of each todo. 
+
+### Computed properties
+
+First, we are going to create some JS functions outside the Vue instance (just to make easier the filtering of the todos).
+
+```javascript
+var filters = {
+    all: function (todos) {
+        return todos;
+    },
+    active: function (todos) {
+        return todos.filter(function (todo) {
+            return !todo.completed;
+        });
+    },
+    completed: function (todos) {
+        return todos.filter(function (todo) {
+            return todo.completed;
+        });
+    }
+};
+```
+
+Now, we are going to some new computed properties.
+
+```
+computed: {
+    remaining: function () {
+        return filters.active(this.todos).length;
+    },
+    allDone: {
+        get: function () {
+            return this.remaining === 0;
+        },
+        set: function (value) {
+            this.todos.forEach(function (todo) {
+                todo.completed = value;
+            });
+        }
+    }
+}
+```
+
+> Instead of a computed property, we can define the same function as a method instead. For the end result, the two approaches are indeed exactly the same. However, the difference is that computed properties are cached based on their reactive dependencies. A computed property will only re-evaluate when some of its reactive dependencies have changed. 
+
+So we add `v-model="allDone"` to the in the toggle-all input.
+
+Now, we are going to add a footer below the list of todos with the remaining pending items.
+
+```html
+<footer class="footer" v-show="todos.length">
+    <span class="todo-count">
+        <strong v-text="remaining"></strong> {{pluralize('item', remaining)}} left
+    </span>
+</footer>
+```
+
+
 
 ## References
 You can find some extra documentation here:

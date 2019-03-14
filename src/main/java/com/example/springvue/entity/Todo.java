@@ -10,12 +10,14 @@ public class Todo {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
-    private String content;
+    private String title;
+    private boolean completed;
 
     public Todo() {}
 
-    public Todo(String content) {
-        this.content = content;
+    public Todo(String title) {
+        this.title = title;
+        this.completed = false;
     }
 
 
@@ -27,16 +29,24 @@ public class Todo {
         this.id = id;
     }
 
-    public String getContent() {
-        return content;
+    public String getTitle() {
+        return title;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
     }
 
     @Override
     public String toString() {
-        return String.format("Todo[id=%d, content='%s']",id, content);
+        return String.format("Todo[id=%d, title='%s', completed='%b']",id, title, completed);
     }
 }

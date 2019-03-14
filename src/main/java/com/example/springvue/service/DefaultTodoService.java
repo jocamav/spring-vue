@@ -33,14 +33,15 @@ public class DefaultTodoService implements TodoService{
     }
 
     public TodoDTO saveTodo(TodoDTO todoDTO) {
-        Todo todoToCreate= new Todo(todoDTO.getContent());
+        Todo todoToCreate= new Todo(todoDTO.getTitle());
         todoToCreate = todoRepository.save(todoToCreate);
         return todoMapper.entityToDTO(todoToCreate);
     }
 
     public TodoDTO updateTodo(TodoDTO todoDTO) {
         Todo todoToUpdate = todoRepository.findById(todoDTO.getId()).get();
-        todoToUpdate.setContent(todoDTO.getContent());
+        todoToUpdate.setTitle(todoDTO.getTitle());
+        todoToUpdate.setCompleted(todoDTO.isCompleted());
         todoToUpdate = todoRepository.save(todoToUpdate);
         return todoMapper.entityToDTO(todoToUpdate);
     }

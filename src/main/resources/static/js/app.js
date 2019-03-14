@@ -1,8 +1,24 @@
 var MOCK_TODOS = [
-	{"id":1,"content":"Learn JavaScript","completed":false},
-	{"id":2,"content":"Learn Vue","completed":false},
-	{"id":3,"content":"Build something awesome","completed":false}
-]
+	{"id":1,"title":"Learn JavaScript","completed":false},
+	{"id":2,"title":"Learn Vue","completed":true},
+	{"id":3,"title":"Build something awesome","completed":false}
+];
+
+var filters = {
+    all: function (todos) {
+        return todos;
+    },
+    active: function (todos) {
+        return todos.filter(function (todo) {
+            return !todo.completed;
+        });
+    },
+    completed: function (todos) {
+        return todos.filter(function (todo) {
+            return todo.completed;
+        });
+    }
+};
 
 var app = new Vue({
 	el : '#app-todo',
@@ -17,10 +33,36 @@ var app = new Vue({
 		// `this` points to the vm instance
 		console.log('The title: ' + this.header)
 	},
+    computed: {
+        remaining: function () {
+            return filters.active(this.todos).length;
+        },
+        allDone: {
+            get: function () {
+                return this.remaining === 0;
+            },
+            set: function (value) {
+                this.todos.forEach(function (todo) {
+                    todo.completed = value;
+                });
+            }
+        }
+    },
 	methods: {
+        pluralize: function (word, count) {
+            return word + (count === 1 ? '' : 's');
+        },
 		addTodo: function() {
-			console.log("Adding a Todo:" + this.newTodo);
-			this.newTodo = '';
-		}
+            var value = this.newTodo && this.newTodo.trim();
+            if (!value) {
+                return;
+            }
+            this.todos.push({ id: this.todos.length + 1, title: value, completed: false });
+            this.newTodo = '';
+		},
+        removeTodo: function (todo) {
+            var index = this.todos.indexOf(todo);
+            this.todos.splice(index, 1);
+        }
 	}
 })

@@ -3,17 +3,17 @@ package com.example.springvue.dto;
 public class TodoDTO {
 
     private long id;
-    private String content;
-    private boolean done;
+    private String title;
+    private boolean completed;
 
     public TodoDTO() {
 
     }
 
-    public TodoDTO(long id, String content) {
+    public TodoDTO(long id, String title) {
         this.id = id;
-        this.content = content;
-        this.done = false;
+        this.title = title;
+        this.completed = false;
     }
 
     public long getId() {
@@ -24,20 +24,20 @@ public class TodoDTO {
         this.id = id;
     }
 
-    public String getContent() {
-        return content;
+    public String getTitle() {
+        return title;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-	public boolean isDone() {
-		return done;
+	public boolean isCompleted() {
+		return completed;
 	}
 
-	public void setDone(boolean done) {
-		this.done = done;
+	public void setCompleted(boolean completed) {
+		this.completed = completed;
 	}
     
     
