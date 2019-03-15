@@ -129,6 +129,22 @@ var app = new Vue({
             .catch(error => {
             	console.log(error);
             });
+        },
+        toggleAll: function() {
+            var actionUrl;
+            if(this.allDone) {
+                actionUrl = "allcompleted";
+            }
+            else {
+                actionUrl = "allnotcompleted";
+            }
+            axios.post(API_TODO_URL+actionUrl)
+            .then(response => {
+                console.log(response);
+            })
+            .catch(error => {
+                console.log(error);
+            });
         }
 	},
     directives: {

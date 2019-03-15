@@ -749,11 +749,34 @@ removeCompleted: function () {
 }
 ```
 
-TODO: Toggle all is not working because it's not implemented in the server yet.
+For toogle all, we include a new method:
 
+```javascript
+toggleAll: function() {
+    var actionUrl;
+    if(this.allDone) {
+        actionUrl = "allcompleted";
+    }
+    else {
+        actionUrl = "allnotcompleted";
+    }
+    axios.post(API_TODO_URL+actionUrl)
+    .then(response => {
+        console.log(response);
+    })
+    .catch(error => {
+        console.log(error);
+    });
+}
+```
 
+And the proper event handler to the checkbox:
 
-Now we can test everything together.
+```html
+@change="toggleAll"
+```
+
+And all the features should be working now! For testing everything together.
 
 `mvn spring-boot:run`
 
