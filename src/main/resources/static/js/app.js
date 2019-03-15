@@ -1,8 +1,4 @@
-var MOCK_TODOS = [
-    {"id":1,"title":"Learn JavaScript","completed":false},
-    {"id":2,"title":"Learn Vue","completed":true},
-    {"id":3,"title":"Build something awesome","completed":false}
-];
+var API_TODO_URL = '/api/todo/';
 
 var filters = {
     all: function (todos) {
@@ -21,20 +17,26 @@ var filters = {
 };
 
 var app = new Vue({
-    el : '#app-todo',
-    data : {
-        header : 'todo',
-        githubUrl: 'https://github.com',
-        mvcUrl: 'http://todomvc.com',
-        newTodo: '',
-        todos: MOCK_TODOS,
+	el : '#app-todo',
+	data : {
+		header : 'todo',
+		githubUrl: 'https://github.com',
+		mvcUrl: 'http://todomvc.com',
+		newTodo: '',
+		todos: [],
         editedTodo: null,
         visibility: 'all'
-    },
-    created : function() {
-        // `this` points to the vm instance
-        console.log('The title: ' + this.header)
-    },
+	},
+    mounted : function() {
+        axios
+            .get(API_TODO_URL)
+            .then(response => {
+            	this.todos = response.data;
+            })
+            .catch(function(error) {
+                console.log(error)
+            });
+	},
     computed: {
         filteredTodos: function () {
             return filters[this.visibility](this.todos);
@@ -53,21 +55,35 @@ var app = new Vue({
             }
         }
     },
-    methods: {
+	methods: {
         pluralize: function (word, count) {
             return word + (count === 1 ? '' : 's');
         },
-        addTodo: function() {
+		addTodo: function() {
             var value = this.newTodo && this.newTodo.trim();
             if (!value) {
                 return;
             }
-            this.todos.push({ id: this.todos.length + 1, title: value, completed: false });
-            this.newTodo = '';
-        },
+            axios.put(API_TODO_URL, {
+            	title: value
+            })
+            .then(response => {
+                this.todos.push(response.data);
+            })
+            .catch(error => {
+            	console.log(error);
+            })
+            .finally(() => (this.newTodo = ''));
+		},
         removeTodo: function (todo) {
-            var index = this.todos.indexOf(todo);
-            this.todos.splice(index, 1);
+            axios.delete(API_TODO_URL + todo.id)
+            .then(response => {
+                var index = this.todos.indexOf(todo);
+                this.todos.splice(index, 1);
+            })
+            .catch(error => {
+            	console.log(error);
+            })
         },
         editTodo: function (todo) {
             this.beforeEditCache = todo.title;
@@ -82,15 +98,55 @@ var app = new Vue({
             if (!todo.title) {
                 this.removeTodo(todo);
             }
+            else {
+	            axios.post(API_TODO_URL+todo.id, todo)
+	            .then(response => {
+	                todo = response.data
+	            })
+	            .catch(error => {
+	            	console.log(error);
+	            });
+            }
         },
         cancelEdit: function (todo) {
             this.editedTodo = null;
             todo.title = this.beforeEditCache;
         },
         removeCompleted: function () {
-            this.todos = filters.active(this.todos);
+        	axios.post(API_TODO_URL+'deletecompleted')
+            .then(response => {
+                this.todos = filters.active(this.todos);
+            })
+            .catch(error => {
+            	console.log(error);
+            });
+        },
+        todoToggle: function (todo) {
+        	axios.post(API_TODO_URL+todo.id, todo)
+            .then(response => {
+                todo = response.data
+            })
+            .catch(error => {
+            	console.log(error);
+            });
+        },
+        toggleAll: function() {
+            var actionUrl;
+            if(this.allDone) {
+                actionUrl = "allcompleted";
+            }
+            else {
+                actionUrl = "allnotcompleted";
+            }
+            axios.post(API_TODO_URL+actionUrl)
+            .then(response => {
+                console.log(response);
+            })
+            .catch(error => {
+                console.log(error);
+            });
         }
-    },
+	},
     directives: {
         'todo-focus': function (el, binding) {
             if (binding.value) {
@@ -104,16 +160,16 @@ var app = new Vue({
 var router = new Router();
 
 ['all', 'active', 'completed'].forEach(function (visibility) {
-    router.on(visibility, function () {
-        app.visibility = visibility;
-    });
+	router.on(visibility, function () {
+		app.visibility = visibility;
+	});
 });
 
 router.configure({
-    notfound: function () {
-        window.location.hash = '';
-        app.visibility = 'all';
-    }
+	notfound: function () {
+		window.location.hash = '';
+		app.visibility = 'all';
+	}
 });
 
 router.init();
